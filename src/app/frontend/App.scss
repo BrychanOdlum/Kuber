@@ -1,9 +1,0 @@
-@import '/generic/_media';
-
-@include media('>=phone', '<tablet') {}
-
-@include media('>=tablet', '<desktop') {}
-
-@include media('>=desktop', '<xl-desktop') {}
-
-@include media('>=xl-desktop') {}
