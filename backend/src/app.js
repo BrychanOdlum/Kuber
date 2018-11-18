@@ -287,7 +287,7 @@ function generateShape(teamSize) {
     }
   }
 
-  let n = maxSize;
+  let n = teamSize;
   while(n > 0) {
 	  let x = Math.floor(Math.random() * maxSize);
 	  let y = Math.floor(Math.random() * maxSize);
