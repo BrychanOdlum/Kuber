@@ -25,6 +25,13 @@ export default class Game {
 
     this.players = {};
 
+    this.activeDirections = {
+    	up: false,
+	    down: false,
+	    left: false,
+	    right: false,
+    };
+
     // Set canvas vars
     this.canvas = canvas;
     this.context = canvas.getContext('2d');
@@ -35,6 +42,10 @@ export default class Game {
 
     this.render = this.render.bind(this);
     this.render();
+
+    this.lastTick = Date.now();
+	  this.gameTick = this.gameTick.bind(this)
+	  setInterval(this.gameTick, 33);
 
     socket.on('connect', () => {
       console.log("Socket id: ", socket.id);
@@ -135,6 +146,48 @@ export default class Game {
       player.coordinate
     });
   }
+
+	gameTick() {
+		const currentTime = Date.now();
+		if (currentTime-this.lastTick < 100) {
+			return;
+		}
+		this.lastTick = currentTime;
+
+  	let player = this.getPlayer(this.currentPlayerId);
+  	let xDiff = 0;
+  	let yDiff = 0;
+		if (this.activeDirections.up) {
+			yDiff -= 1;
+		}
+		if (this.activeDirections.down) {
+			yDiff += 1;
+		}
+		if (this.activeDirections.left) {
+			xDiff -= 1;
+		}
+		if (this.activeDirections.right) {
+			xDiff += 1;
+		}
+
+		if (yDiff === -1) {
+			socket.emit('move', 'up');
+		}
+		if (yDiff === 1) {
+			socket.emit('move', 'down');
+		}
+		if (xDiff === -1) {
+			socket.emit('move', 'left');
+		}
+		if (xDiff === 1) {
+			socket.emit('move', 'right');
+		}
+
+		let newLocation = player.location.getRelative(xDiff, yDiff);
+
+		game.movePlayer(player, newLocation);
+
+	}
 
   render() {
     try {
