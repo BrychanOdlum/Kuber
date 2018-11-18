@@ -1,11 +1,7 @@
 import Grid from './grid';
-import Coordinate from './coordinate';
 import Listeners from './listeners';
-import socket from './socket';
 
-import Player from './player';
-
-import { EasingFunctions } from './utils';
+import {EasingFunctions} from './utils';
 
 export default class Game {
   constructor(canvas) {
@@ -35,55 +31,6 @@ export default class Game {
 
     this.render = this.render.bind(this);
     this.render();
-
-    socket.on('connect', () => {
-      console.log("Socket id: ", socket.id);
-      this.setCurrentPlayer(socket.id);
-    });
-
-    socket.on('init', data => {
-      console.log("Data: ", data);
-      this.gridWidth = data.arena.width;
-      this.gridHeight = data.arena.height;
-
-      for (const player of data.arena.players) {
-        this.addPlayer(new Player(this, player.id,
-            new Coordinate(player.coordinate.x, player.coordinate.y)));
-      }
-
-      this.arenaHeight = data.arena.height;
-      this.arenaWidth = data.arena.width;
-
-
-      const player = this.getPlayer(this.currentPlayerId);
-	    const canvasCenterX = this.canvas.width / 2;
-	    const playerLocationX = (player.location.x * (this.tileSize * this.scale)) + ((this.tileSize * this.scale) / 2);
-	    const canvasCenterY = this.canvas.height / 2;
-	    const playerLocationY = (player.location.y * (this.tileSize * this.scale)) + ((this.tileSize * this.scale) / 2);
-
-	    this.offsetX = canvasCenterX - playerLocationX;
-	    this.offsetY = canvasCenterY - playerLocationY;
-    });
-
-    socket.on('move', data => {
-      console.log('MOVE', data);
-      const player = this.getPlayer(data.id);
-
-      this.movePlayer(player,
-          new Coordinate(data.coordinate.x, data.coordinate.y));
-    });
-
-    socket.on('join', (player) => {
-      console.log('JOIN', player);
-
-      this.addPlayer(new Player(this, player.id,
-          new Coordinate(player.coordinate.x, player.coordinate.y)));
-    });
-
-    socket.on('leave', (data) => {
-      console.log('LEAVE', data);
-      this.removePlayer(data.id);
-    });
   }
 
   resizeCanvas() {
@@ -108,10 +55,10 @@ export default class Game {
   }
 
   movePlayer(player, location) {
-	  // Move camera
+    // Move camera
     if (player.id === this.currentPlayerId) {
-	    this.cameraTransformations.push({
-	      startTime: Date.now(),
+      this.cameraTransformations.push({
+        startTime: Date.now(),
         diffX: player.location.x - location.x,
         diffY: player.location.y - location.y,
         moveComplete: 0,
@@ -119,7 +66,7 @@ export default class Game {
     }
 
     // Move player
-	  player.move(location);
+    player.move(location);
   }
 
   getGridWidth() {
@@ -130,52 +77,42 @@ export default class Game {
     return this.gridHeight;
   }
 
-  fetchPlayerPositions() {
-    Object.values(this.players).forEach(player => {
-      player.coordinate
-    });
-  }
-
   render() {
-    try {
-	    // Update camera
-	    this.cameraTransformations.forEach(transformation => {
-		    let progress = (Date.now()-transformation.startTime)/400;
-		    if (progress > 1) {
-			    progress = 1;
+    // Update camera
+    this.cameraTransformations.forEach(transformation => {
+      let progress = (Date.now() - transformation.startTime) / 400;
+      if (progress > 1) {
+        progress = 1;
+      }
 
-		    }
+      const moveTotal = EasingFunctions.easeInOutCubic(progress);
+      const moveDiff = moveTotal - transformation.moveComplete;
+      transformation.moveComplete = moveTotal;
 
-		    const moveTotal = EasingFunctions.easeInOutCubic(progress);
-		    const moveDiff = moveTotal - transformation.moveComplete;
-		    transformation.moveComplete = moveTotal;
+      const moveDiffX = moveDiff * transformation.diffX * this.tileSize;
+      const moveDiffY = moveDiff * transformation.diffY * this.tileSize;
 
-		    const moveDiffX = moveDiff * transformation.diffX * this.tileSize;
-		    const moveDiffY = moveDiff * transformation.diffY * this.tileSize;
+      // TODO (maybe never): Floating point issue, pls float away bug, bug, never wanna see you again.
 
-		    // TODO (maybe never): Floating point issue, pls float away bug, bug, never wanna see you again.
+      this.offsetX += moveDiffX;
+      this.offsetY += moveDiffY;
+    });
 
-		    this.offsetX += moveDiffX;
-		    this.offsetY += moveDiffY;
-	    });
+    this.cameraTransformations = this.cameraTransformations.filter(
+        t => t.moveComplete < 1);
 
-	    this.cameraTransformations = this.cameraTransformations.filter(t => t.moveComplete < 1);
+    // Clear rect
+    this.context.clearRect(0, 0, this.context.canvas.width,
+        this.context.canvas.height);
 
-	    // Clear rect
-	    this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+    // Render grid
+    this.grid.render();
 
-	    // Render grid
-	    this.grid.render();
+    // Render players
+    Object.values(this.players).forEach(player => {
+      player.render();
+    });
 
-	    // Render players
-	    Object.values(this.players).forEach(player => {
-		    player.render();
-	    });
-
-	    requestAnimationFrame(this.render);
-    } catch (e) {
-      console.log(e);
-    }
-
+    requestAnimationFrame(this.render);
   }
 }

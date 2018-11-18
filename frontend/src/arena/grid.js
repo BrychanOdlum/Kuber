@@ -24,7 +24,6 @@ export default class Grid {
 
 	  const stepSize = game.tileSize * game.scale;
 
-
     // RENDER: VERTICAL LINES
 	  let x = 0.5 - stepSize + game.offsetX;
     while (x < maxX) {
