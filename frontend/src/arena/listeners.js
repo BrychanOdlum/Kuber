@@ -37,6 +37,8 @@ export default class Listeners {
           break;
         }
       }
+
+      game.lastTick = 0;
       game.movementTick();
     });
 
