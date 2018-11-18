@@ -25,7 +25,6 @@ export default class Arena extends Component {
     const game = new Game(canvas);
 
     socket.on('arena infos', data => {
-      console.log('INIT: ', data);
       game.setCurrentPlayer(socket.id);
 
       game.gridWidth = data.arena.width;
@@ -41,7 +40,7 @@ export default class Arena extends Component {
                       player.coordinate.x,
                       player.coordinate.y,
                   ),
-                  team.color,
+                  team,
               ),
           );
         }
@@ -69,7 +68,6 @@ export default class Arena extends Component {
     socket.emit('arena infos');
 
     socket.on('move', data => {
-      console.log('MOVE', data);
       const player = game.getPlayer(data.id);
 
       game.movePlayer(player,
@@ -77,34 +75,28 @@ export default class Arena extends Component {
     });
 
     socket.on('join', (player) => {
-      console.log('JOIN', player);
 
       game.addPlayer(
           new Player(
               game,
               player.id,
               new Coordinate(player.coordinate.x, player.coordinate.y),
-              player.team.color,
+              player.team,
           ),
       );
     });
 
     socket.on('leave', (data) => {
-      console.log('LEAVE', data);
       game.removePlayer(data.id);
     });
 
     socket.on('reward', (data) => {
-      console.log('REWARD', data);
-
       this.setState({
         score: data.score,
       });
     });
 
     socket.on('shape', (data) => {
-      console.log('SHAPE', data);
-
       this.setState({
         shape: data,
       });

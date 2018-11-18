@@ -182,6 +182,8 @@ export default class Game {
       player.render();
     });
 
+
+
 	  // Render grid
 	  this.grid.render();
 
