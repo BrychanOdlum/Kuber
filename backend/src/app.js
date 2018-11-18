@@ -34,6 +34,8 @@ class Arena {
       team.newShape();
     }
     this.interval = setInterval(() => {
+      this.gcTeams();
+
       this.time--;
       this.tick();
 
@@ -41,8 +43,6 @@ class Arena {
         this.end();
         this.start();
       }
-
-
     }, 1000);
   }
 
@@ -67,6 +67,15 @@ class Arena {
     this.teams[id] = t;
 
     return t;
+  }
+
+  gcTeams() {
+    for (const id of Object.keys(this.teams)) {
+      const team = this.getTeam(id);
+      if (team.shouldGC) {
+        delete this.teams[id];
+      }
+    }
   }
 
   getTeam(id) {
@@ -100,9 +109,9 @@ class Arena {
   }
 
   getAllPlayerCoordinates() {
-    return this.getTeams()
-    .reduce((players, team) => [...players, ...team.getPlayers()], [])
-    .map(player => player.coordinate);
+    return this.getTeams().
+        reduce((players, team) => [...players, ...team.getPlayers()], []).
+        map(player => player.coordinate);
   }
 
   isTileEmpty(coordinate) {
@@ -139,6 +148,10 @@ class Team {
   removePlayer(player) {
     player.team = null;
     delete this.players[player.id];
+
+    if (this.getPlayers().length === 0) {
+      this.shouldGC = true;
+    }
   }
 
   getPlayers() {
@@ -155,9 +168,11 @@ class Team {
   reward(arena) {
     if (this.matchShape(arena)) {
       for (const player of this.getPlayers()) {
+        player.score += this.shape.count;
+
         player.socket.emit('reward', {
-          reward: 1,
-          score: ++player.score,
+          reward: this.shape.count,
+          score: player.score,
         });
       }
     }
@@ -246,6 +261,15 @@ class Shape {
     this.width = width;
     this.height = grid.length;
     this.grid = grid;
+
+    this.count = 0;
+    for(const row of this.grid) {
+      for(const c of row) {
+        if(c) {
+          this.count++;
+        }
+      }
+    }
   }
 }
 
