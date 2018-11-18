@@ -29,8 +29,9 @@ export default class Highscores extends Component {
 
     return (
         <div className={'main-container'}>
+          <span className={"title"}>Highscores</span>
           {this.state.teams.map(team => (
-              <div>
+              <div className={"team-scores"}>
                 {team.name} - {team.score}
               </div>
           ))}
