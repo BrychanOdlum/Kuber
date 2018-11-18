@@ -4,6 +4,8 @@ import Listeners from './listeners';
 
 import Player from './player';
 
+import { EasingFunctions } from './utils';
+
 export default class Game {
     constructor(canvas) {
         this.offsetX = 0;
