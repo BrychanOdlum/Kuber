@@ -11,13 +11,13 @@ export default class Canvas extends Component {
         ctx.fillStyle = "#FF0000";
         ctx.fillRect(0,0,150,75);
 
-    }
+}
 
-    render() {
-        return(
-            <div>
-                <canvas className={"canvas"} ref={"canvas"} width={640} height={425} />
-            </div>
-        )
-    }
+render() {
+    return(
+        <div>
+            <canvas className={"canvas"} ref={"canvas"} width={640} height={425} />
+        </div>
+    )
+}
 }
