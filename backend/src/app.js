@@ -70,11 +70,17 @@ class Arena {
   }
 
   gcTeams() {
+    let hasUpdates = false;
     for (const id of Object.keys(this.teams)) {
       const team = this.getTeam(id);
       if (team.shouldGC) {
         delete this.teams[id];
+        hasUpdates = true;
       }
+    }
+
+    if(hasUpdates) {
+      io.emit('teams', arena.getTeams().map(t => t.serialize()));
     }
   }
 
@@ -300,8 +306,6 @@ function generateShape(teamSize) {
 		  n--;
     }
   }
-
-  console.log(grid);
 
   return new Shape(grid);
 }
