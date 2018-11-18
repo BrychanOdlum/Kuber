@@ -8,12 +8,6 @@ export default class Listeners {
     this.setup();
   }
 
-  checkForPlayers() {
-    // Fetch the whole map of current players (their locations)
-    // if next position will be the taken position, cannot move.
-
-  }
-
   setup() {
     const game = this.game;
 

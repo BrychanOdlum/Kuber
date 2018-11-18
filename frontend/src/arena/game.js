@@ -82,12 +82,15 @@ export default class Game {
     player.move(location);
   }
 
-  getGridWidth() {
-    return this.gridWidth;
+  getAllPlayerLocations() {
+    return Object.values(this.players).map(player => player.location);
   }
 
-  getGridHeight() {
-    return this.gridHeight;
+  isTileEmpty(location) {
+    const playerLocations = this.getAllPlayerLocations();
+    return playerLocations.find(l =>
+        l.x === location.x && l.y === location.y
+    );
   }
 
 	movementTick() {
@@ -113,7 +116,15 @@ export default class Game {
 			xDiff += 1;
 		}
 
+		if (xDiff === 0 && yDiff === 0) {
+		  return;
+    }
+
 		let newLocation = player.location.getRelative(xDiff, yDiff);
+
+		if (this.isTileEmpty(newLocation)) {
+		  return;
+    }
 
 		if ((newLocation.x < 0) || (newLocation.x >= this.arenaWidth)) {
 			newLocation.x = player.location.x;
