@@ -90,15 +90,14 @@ export default class Game {
   }
 
   movePlayer(player, location) {
-    const width = player.location.x;
-    if (width < 5 || width > 25) {
-      console.log("Reached the limit");
-    }
-    else {
+    // let width = player.location.x;
+    // if (width >= 5 || width <= 25) {
       player.move(location);
-    }
+    // }
+    // else {
+    //   console.log("Reached the limit");
+    // }
   }
-
 
   render() {
     this.context.clearRect(0, 0, this.context.canvas.width,
