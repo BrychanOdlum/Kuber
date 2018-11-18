@@ -25,5 +25,7 @@
     "start": "encore dev-server --hot",
     "build": "encore production"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "copy-webpack-plugin": "^4.6.0"
+  }
 }
