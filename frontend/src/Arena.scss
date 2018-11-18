@@ -1,0 +1,59 @@
+@import 'generic/_media';
+
+#root, #root > div {
+  height: 100%;
+
+  .score, .time {
+    color: rgba(0, 0, 0, 0.8);
+    font-size: 20px;
+    margin-bottom: 10px;
+    text-align: start;
+  }
+
+  .info {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.7);
+    width: 150px;
+    height: 250px;
+    border-radius: 3px;
+    padding: 10px;
+
+    .pattern-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 40px;
+      height: 50%;
+    }
+
+    .shape {
+      td {
+        width: 20px;
+        height: 20px;
+
+        &.block {
+          background-color: #C31750;
+        }
+      }
+
+    }
+  }
+
+  .canvas {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+@include media('>=phone', '<tablet') {}
+
+@include media('>=tablet', '<desktop') {}
+
+@include media('>=desktop', '<xl-desktop') {}
+
+@include media('>=xl-desktop') {}

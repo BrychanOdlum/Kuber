@@ -41,6 +41,8 @@ class Arena {
         this.end();
         this.start();
       }
+
+
     }, 1000);
   }
 
@@ -202,6 +204,7 @@ class Team {
       id: this.id,
       name: this.name,
       color: this.color,
+      shape: this.shape,
     };
 
     if (withPlayers) {
@@ -264,7 +267,9 @@ const shapes = [
   ]),
 ];
 
-const arena = new Arena(30, 30);
+
+const arena = new Arena(100, 100);
+
 arena.start();
 
 io.on('connection', (socket) => {

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-import './Canvas.scss';
+import './Arena.scss';
 import Game from './arena/game';
 import socket from './arena/socket';
 import Coordinate from './arena/coordinate';
@@ -141,11 +141,12 @@ export default class Arena extends Component {
     return (
         <div>
           <div className={'info'}>
-            <div className={'score'}>{this.state.score}</div>
-            <div className={'time'}>{this.state.time}</div>
-            {this.renderShape()}
+            <div className={'score'}>Score: {this.state.score}</div>
+            <div className={'time'}>Time Left: {this.state.time}</div>
+            <div className={"pattern-container"}>
+              {this.renderShape()}
+            </div>
           </div>
-
           <canvas className={'canvas'} ref={'canvas'}/>
         </div>
     );
