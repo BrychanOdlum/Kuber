@@ -3,6 +3,8 @@ import Listeners from './listeners';
 
 import {EasingFunctions} from './utils';
 
+import socket from './socket'
+
 export default class Game {
   constructor(canvas) {
     this.offsetX = 0;
@@ -21,6 +23,13 @@ export default class Game {
 
     this.players = {};
 
+    this.activeDirections = {
+    	up: false,
+	    down: false,
+	    left: false,
+	    right: false,
+    };
+
     // Set canvas vars
     this.canvas = canvas;
     this.context = canvas.getContext('2d');
@@ -31,6 +40,10 @@ export default class Game {
 
     this.render = this.render.bind(this);
     this.render();
+
+	  this.lastTick = Date.now();
+	  this.movementTick = this.movementTick.bind(this)
+	  setInterval(this.movementTick, 33);
   }
 
   resizeCanvas() {
@@ -69,13 +82,72 @@ export default class Game {
     player.move(location);
   }
 
-  getGridWidth() {
-    return this.gridWidth;
+  getAllPlayerLocations() {
+    return Object.values(this.players).map(player => player.location);
   }
 
-  getGridHeight() {
-    return this.gridHeight;
+  isTileEmpty(location) {
+    const playerLocations = this.getAllPlayerLocations();
+    return playerLocations.find(l =>
+        l.x === location.x && l.y === location.y
+    );
   }
+
+	movementTick() {
+		const currentTime = Date.now();
+		if (currentTime-this.lastTick < 100) {
+			return;
+		}
+		this.lastTick = currentTime;
+
+  	let player = this.getPlayer(this.currentPlayerId);
+  	let xDiff = 0;
+  	let yDiff = 0;
+		if (this.activeDirections.up) {
+			yDiff -= 1;
+		}
+		if (this.activeDirections.down) {
+			yDiff += 1;
+		}
+		if (this.activeDirections.left) {
+			xDiff -= 1;
+		}
+		if (this.activeDirections.right) {
+			xDiff += 1;
+		}
+
+		if (xDiff === 0 && yDiff === 0) {
+		  return;
+    }
+
+		let newLocation = player.location.getRelative(xDiff, yDiff);
+
+		if (this.isTileEmpty(newLocation)) {
+		  return;
+    }
+
+		if ((newLocation.x < 0) || (newLocation.x >= this.arenaWidth)) {
+			newLocation.x = player.location.x;
+		}
+		if ((newLocation.y < 0) || (newLocation.y >= this.arenaHeight)) {
+			newLocation.y = player.location.y;
+		}
+
+		if (yDiff === -1) {
+			socket.emit('move', 'up');
+		}
+		if (yDiff === 1) {
+			socket.emit('move', 'down');
+		}
+		if (xDiff === -1) {
+			socket.emit('move', 'left');
+		}
+		if (xDiff === 1) {
+			socket.emit('move', 'right');
+		}
+
+		this.movePlayer(player, newLocation);
+	}
 
   render() {
     // Update camera

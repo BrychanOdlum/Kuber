@@ -8,66 +8,69 @@ export default class Listeners {
     this.setup();
   }
 
-  checkForPlayers() {
-    // Fetch the whole map of current players (their locations)
-    // if next position will be the taken position, cannot move.
-
-  }
-
   setup() {
     const game = this.game;
+
+    // KEY DOWN
     document.addEventListener('keydown', (event) => {
       const key = event.key.toLowerCase();
-      const player = game.getPlayer(game.currentPlayerId);
 
       switch (key) {
         case 'w':
         case 'arrowup': {
-          const newLocation = player.location.getRelative(0, -1);
-          if(newLocation.y < 0) {
-            console.log("Reached boundary.");
-          } else {
-            socket.emit('move', 'up');
-            game.movePlayer(player, newLocation);
-          }
+          game.activeDirections.up = true;
           break;
         }
         case 's':
         case 'arrowdown': {
-          const newLocation = player.location.getRelative(0, 1);
-          if(newLocation.y > game.getGridHeight() - 1) {
-            console.log("Reached boundary.");
-          } else {
-            socket.emit('move', 'down');
-            game.movePlayer(player, newLocation);
-          }
+	        game.activeDirections.down = true;
           break;
         }
         case 'a':
         case 'arrowleft': {
-          const newLocation = player.location.getRelative(-1, 0);
-          if (newLocation.x < 0) {
-            console.log("Reached boundary.");
-          } else {
-            socket.emit('move', 'left');
-            game.movePlayer(player, newLocation);
-          }
+	        game.activeDirections.left = true;
           break;
         }
         case 'd':
         case 'arrowright': {
-          const newLocation = player.location.getRelative(1, 0);
-          if(newLocation.x > game.getGridWidth() - 1) {
-            console.log("Reached boundary.");
-          } else {
-            socket.emit('move', 'right');
-            game.movePlayer(player, newLocation);
-          }
+	        game.activeDirections.right = true;
           break;
         }
       }
+
+      game.lastTick = 0;
+      game.movementTick();
     });
 
+    // KEY UP
+	  document.addEventListener('keyup', (event) => {
+		  const key = event.key.toLowerCase();
+
+		  switch (key) {
+			  case 'w':
+			  case 'arrowup': {
+				  game.activeDirections.up = false;
+				  break;
+			  }
+			  case 's':
+			  case 'arrowdown': {
+				  game.activeDirections.down = false;
+				  break;
+			  }
+			  case 'a':
+			  case 'arrowleft': {
+				  game.activeDirections.left = false;
+				  break;
+			  }
+			  case 'd':
+			  case 'arrowright': {
+				  game.activeDirections.right = false;
+				  break;
+			  }
+		  }
+	  });
+
+	  // WINDOW RESIZE
     window.addEventListener('resize', (() => {
       game.resizeCanvas();
     }));

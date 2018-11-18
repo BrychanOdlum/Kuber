@@ -96,6 +96,19 @@ class Arena {
     }
     return grid;
   }
+
+  getAllPlayerCoordinates() {
+    return this.getTeams()
+    .reduce((players, team) => [...players, ...team.getPlayers()], [])
+    .map(player => player.coordinate);
+  }
+
+  isTileEmpty(coordinate) {
+    const playerCoordinates = this.getAllPlayerCoordinates();
+    return !playerCoordinates.find(c =>
+        c.x === coordinate.x && c.y === coordinate.y,
+    );
+  }
 }
 
 function getRandomColor() {
@@ -174,7 +187,8 @@ class Team {
             const x = ox + sx;
             const y = oy + sy;
 
-            if (shape.grid[sy][sx] == true && (grid[y][x] === null || grid[y][x].team.id !== this.id)) {
+            if (shape.grid[sy][sx] == true &&
+                (grid[y][x] === null || grid[y][x].team.id !== this.id)) {
               match = false;
             }
           }
@@ -315,28 +329,45 @@ io.on('connection', (socket) => {
 
   socket.on('move', (direction) => {
     console.log('Move', direction, player.coordinate);
+    let yDiff = 0;
+    let xDiff = 0;
 
     switch (direction) {
       case 'up':
-        if (player.coordinate.y > 0) {
-          player.coordinate.y--;
-        }
+        yDiff -= 1;
         break;
       case 'down':
-        if (player.coordinate.y < arena.height - 1) {
-          player.coordinate.y++;
-        }
+        yDiff += 1;
         break;
       case 'right':
-        if (player.coordinate.x < arena.width - 1) {
-          player.coordinate.x++;
-        }
+        xDiff += 1;
         break;
       case 'left':
-        if (player.coordinate.x > 0) {
-          player.coordinate.x--;
-        }
+        xDiff -= 1;
         break;
+    }
+
+    let newCoordinate = new Coordinate(player.coordinate.x +
+        xDiff, player.coordinate.y + yDiff);
+
+    if ((newCoordinate.y >= arena.height) || (newCoordinate.y < 0)) {
+      yDiff = 0;
+    }
+    if ((newCoordinate.x >= arena.width) || (newCoordinate.x < 0)) {
+      xDiff = 0;
+    }
+
+    console.log(yDiff, xDiff);
+
+    if (!arena.isTileEmpty(newCoordinate)) {
+      xDiff = 0;
+      yDiff = 0;
+      console.log('is not empty');
+    }
+    console.log(yDiff, xDiff);
+
+    if (xDiff !== 0 || yDiff !== 0) {
+      player.coordinate = newCoordinate;
     }
 
     io.emit('move', {
