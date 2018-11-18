@@ -20,11 +20,11 @@ export default class Game {
 
     this.players = {};
 
-    // Set context
+    // Set canvas vars
     this.canvas = canvas;
     this.context = canvas.getContext('2d');
-
     this.resizeCanvas();
+    this.cameraTransforms = [];
 
     new Listeners(this);
 
@@ -92,15 +92,33 @@ export default class Game {
   }
 
   movePlayer(player, location) {
-    player.move(location);
+	  // Move camera
+    if (player.id === this.currentPlayerId) {
+	    this.cameraTransforms.push({
+	      startTime: Date.now(),
+        diffX: player.location.x - location.x,
+        diffY: player.location.y - location.y,
+      });
+    }
+
+    // Move player
+	  player.move(location);
   }
 
   render() {
-    this.context.clearRect(0, 0, this.context.canvas.width,
-        this.context.canvas.height);
+	  // Update camera
+    this.cameraTransforms.forEach(transform => {
+      const progress = (Date.now()-transform.startTime)/1000;
+      const xMovement = EasingFunctions.easeInOutCubic()
+    });
 
+    // Clear rect
+    this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+
+    // Render grid
     this.grid.render();
 
+    // Render players
     Object.values(this.players).forEach(player => {
       player.render();
     });
