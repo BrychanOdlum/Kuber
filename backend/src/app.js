@@ -79,7 +79,7 @@ class Arena {
       }
     }
 
-    if(hasUpdates) {
+    if (hasUpdates) {
       io.emit('teams', arena.getTeams().map(t => t.serialize()));
     }
   }
@@ -141,6 +141,7 @@ class Team {
     this.id = id;
     this.name = name;
     this.color = getRandomColor();
+    this.score = 0;
 
     this.players = {};
     this.newShape();
@@ -173,13 +174,15 @@ class Team {
 
   reward(arena) {
     if (this.matchShape(arena)) {
-      for (const player of this.getPlayers()) {
-        player.score += this.shape.count;
+      this.score += this.shape.count;
 
+      for (const player of this.getPlayers()) {
         player.socket.emit('reward', {
           reward: this.shape.count,
-          score: player.score,
+          score: this.score,
         });
+
+        player.socket.emit('teams', arena.getTeams().map(t => t.serialize()));
       }
     }
   }
@@ -226,6 +229,7 @@ class Team {
       name: this.name,
       color: this.color,
       shape: this.shape,
+      score: this.score,
     };
 
     if (withPlayers) {
@@ -241,14 +245,13 @@ class Player {
     this.id = id;
     this.coordinate = new Coordinate(x, y);
     this.socket = socket;
-    this.score = 0;
+    this.team = null;
   }
 
   serialize() {
     return {
       id: this.id,
       coordinate: this.coordinate,
-      score: this.score,
       team: this.team ? this.team.serialize() : null,
     };
   }
@@ -269,9 +272,9 @@ class Shape {
     this.grid = grid;
 
     this.count = 0;
-    for(const row of this.grid) {
-      for(const c of row) {
-        if(c) {
+    for (const row of this.grid) {
+      for (const c of row) {
+        if (c) {
           this.count++;
         }
       }
@@ -285,7 +288,7 @@ arena.start();
 function generateShape(teamSize) {
   let maxSize = teamSize + 1;
   if (maxSize > 5) {
-	  maxSize = 5;
+    maxSize = 5;
   }
 
   const grid = [];
@@ -297,13 +300,13 @@ function generateShape(teamSize) {
   }
 
   let n = teamSize;
-  while(n > 0) {
-	  let x = Math.floor(Math.random() * maxSize);
-	  let y = Math.floor(Math.random() * maxSize);
+  while (n > 0) {
+    let x = Math.floor(Math.random() * maxSize);
+    let y = Math.floor(Math.random() * maxSize);
 
-	  if(grid[y][x] === 0) {
-		  grid[y][x] = 1;
-		  n--;
+    if (grid[y][x] === 0) {
+      grid[y][x] = 1;
+      n--;
     }
   }
 
@@ -347,6 +350,10 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('teams', arena.getTeams().map(t => t.serialize()));
 
     joinTeam(team);
+  });
+
+  socket.on('teams', () => {
+    socket.emit('teams', arena.getTeams().map(t => t.serialize()));
   });
 
   socket.on('join team', data => {
