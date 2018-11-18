@@ -328,7 +328,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('move', (direction) => {
-    console.log('Move', direction, player.coordinate);
     let yDiff = 0;
     let xDiff = 0;
 
@@ -357,14 +356,10 @@ io.on('connection', (socket) => {
       xDiff = 0;
     }
 
-    console.log(yDiff, xDiff);
-
     if (!arena.isTileEmpty(newCoordinate)) {
       xDiff = 0;
       yDiff = 0;
-      console.log('is not empty');
     }
-    console.log(yDiff, xDiff);
 
     if (xDiff !== 0 || yDiff !== 0) {
       player.coordinate = newCoordinate;
