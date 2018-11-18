@@ -22,9 +22,11 @@ export default class Grid {
 	  let maxY = ((game.arenaHeight * game.tileSize) + game.offsetY) * game.scale;
 	  if (maxY > game.canvas.height) { maxY = game.canvas.height }
 
+	  const stepSize = game.tileSize * game.scale;
+
 
     // RENDER: VERTICAL LINES
-	  let x = 0.5 + game.offsetX;
+	  let x = 0.5 - stepSize + game.offsetX;
     while (x < maxX) {
       x += game.tileSize * game.scale;
 
@@ -40,7 +42,7 @@ export default class Grid {
       game.context.stroke();
     }
 
-    let y = 0.5 + game.offsetY;
+    let y = 0.5 - stepSize + game.offsetY;
     while (y < maxY) {
       y += game.tileSize * game.scale;
 
