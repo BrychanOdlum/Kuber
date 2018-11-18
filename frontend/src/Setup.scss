@@ -1,0 +1,27 @@
+@import 'generic/_media';
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height:100%;
+  width: 100%;
+  position: fixed;
+
+  .content {
+    background-color: rgb(255, 255, 255);
+    width: 600px;
+    height: 500px;
+    position: absolute;
+    border-radius: 5px;
+  }
+}
+
+
+@include media('>=phone', '<tablet') {}
+
+@include media('>=tablet', '<desktop') {}
+
+@include media('>=desktop', '<xl-desktop') {}
+
+@include media('>=xl-desktop') {}

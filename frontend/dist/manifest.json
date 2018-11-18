@@ -1,4 +1,5 @@
 {
   "app.js": "http://localhost:8080/app.js",
-  "app.css": "http://localhost:8080/app.css"
+  "app.css": "http://localhost:8080/app.css",
+  "images/game-logo.png": "http://localhost:8080/images/game-logo.c818c819.png"
 }

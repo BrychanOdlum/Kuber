@@ -41,6 +41,8 @@ class Arena {
         this.end();
         this.start();
       }
+
+
     }, 1000);
   }
 
@@ -269,7 +271,7 @@ const shapes = [
   ]),
 ];
 
-const arena = new Arena(10, 10);
+const arena = new Arena(100, 100);
 arena.start();
 
 io.on('connection', (socket) => {
