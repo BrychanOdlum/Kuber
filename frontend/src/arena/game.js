@@ -10,7 +10,7 @@ export default class Game {
     this.offsetX = 0;
     this.offsetY = 0;
 
-    this.tileSize = 40;
+    this.tileSize = 20;
 
     this.scale = 1;
 
@@ -90,8 +90,15 @@ export default class Game {
   }
 
   movePlayer(player, location) {
-    player.move(location);
+    const width = player.location.x;
+    if (width < 5 || width > 25) {
+      console.log("Reached the limit");
+    }
+    else {
+      player.move(location);
+    }
   }
+
 
   render() {
     this.context.clearRect(0, 0, this.context.canvas.width,

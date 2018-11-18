@@ -48,21 +48,12 @@ class App extends Component {
     }
 
     return (
-        <table>
+        <table className={"shape"}>
           <tbody>
           {shape.grid.map(row => (
               <tr>
                 {row.map(c => {
-                  let style = {
-                    width: 15,
-                    height: 15,
-                  }
-
-                  if (c) {
-                    style.backgroundColor = 'black'
-                  }
-
-                  return (<td style={style} />)
+                  return (<td className={c ? "block" : ""} />)
                 })}
               </tr>
           ))}
@@ -74,9 +65,12 @@ class App extends Component {
   render() {
     return (
         <div>
-          <div className={'score'}>{this.state.score}</div>
-          <div className={'time'}>{this.state.time}</div>
-          {this.renderShape()}
+          <div className={'info'}>
+            <div className={'score'}>{this.state.score}</div>
+            <div className={'time'}>{this.state.time}</div>
+            {this.renderShape()}
+
+          </div>
           <Canvas/>
         </div>
     );
