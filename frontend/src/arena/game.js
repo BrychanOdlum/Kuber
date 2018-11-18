@@ -152,7 +152,7 @@ export default class Game {
   render() {
     // Update camera
     this.cameraTransformations.forEach(transformation => {
-      let progress = (Date.now() - transformation.startTime) / 400;
+      let progress = (Date.now() - transformation.startTime) / 300;
       if (progress > 1) {
         progress = 1;
       }
@@ -177,13 +177,13 @@ export default class Game {
     this.context.clearRect(0, 0, this.context.canvas.width,
         this.context.canvas.height);
 
-    // Render grid
-    this.grid.render();
-
     // Render players
     Object.values(this.players).forEach(player => {
       player.render();
     });
+
+	  // Render grid
+	  this.grid.render();
 
     requestAnimationFrame(this.render);
   }
