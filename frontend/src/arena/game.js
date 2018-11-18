@@ -5,14 +5,11 @@ import Listeners from './listeners';
 import Player from './player';
 
 export default class Game {
-    constructor(context, size = {width: 500, height: 300}) {
-        this.width = size.width;
-        this.height = size.height;
-
+    constructor(canvas) {
         this.offsetX = 0;
         this.offsetY = 0;
 
-        this.tileSize = 20;
+        this.tileSize = 40;
 
         this.scale = 1;
 
@@ -21,16 +18,25 @@ export default class Game {
         this.players = {};
 
         // Set context
-        this.context = context;
+        this.canvas = canvas;
+        this.context = canvas.getContext("2d");
 
         this.addPlayer(new Player(this, 1, new Coordinate(5, 1)));
         this.addPlayer(new Player(this, 2, new Coordinate(20, 20)));
         this.setCurrentPlayer(2);
 
+        this.resizeCanvas();
+
         new Listeners(this);
 
         this.render = this.render.bind(this);
         this.render();
+    }
+
+    resizeCanvas() {
+        console.log(this.canvas.height);
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
     }
 
     addPlayer(player) {

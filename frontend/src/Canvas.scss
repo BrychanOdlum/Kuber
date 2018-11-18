@@ -3,8 +3,8 @@
 .canvas {
   display: block;
   margin: 0 auto;
-  margin-top: 80px;
-  border: solid 2px #000;
+  width: 100%;
+  height: 100%;
 }
 
 @include media('>=phone', '<tablet') {}

@@ -7,3 +7,16 @@
 @include media('>=desktop', '<xl-desktop') {}
 
 @include media('>=xl-desktop') {}
+
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background: #131313;
+}
+
+#root, #root > div {
+  height: 100%;
+}
