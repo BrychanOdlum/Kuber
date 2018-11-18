@@ -282,7 +282,7 @@ class Shape {
   }
 }
 
-const arena = new Arena(100, 100);
+const arena = new Arena(20, 20);
 arena.start();
 
 function generateShape(teamSize) {
