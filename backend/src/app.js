@@ -129,7 +129,7 @@ class Arena {
 }
 
 function getRandomColor() {
-  return `hsl(${Math.floor(Math.random() * (359))}, 100%, 50%)`;
+  return `hsl(${Math.floor(Math.random() * (359))}, ${Math.floor(Math.random() * (50))+50}%, ${Math.floor(Math.random() * (50))+25}%)`;
 }
 
 function randId() {
