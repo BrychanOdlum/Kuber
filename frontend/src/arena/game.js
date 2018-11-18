@@ -12,7 +12,7 @@ export default class Game {
     this.offsetX = 0;
     this.offsetY = 0;
 
-    this.tileSize = 40;
+    this.tileSize = 60;
 
     this.scale = 1;
 
@@ -24,7 +24,7 @@ export default class Game {
     this.canvas = canvas;
     this.context = canvas.getContext('2d');
     this.resizeCanvas();
-    this.cameraTransforms = [];
+    this.cameraTransformations = [];
 
     new Listeners(this);
 
@@ -94,10 +94,11 @@ export default class Game {
   movePlayer(player, location) {
 	  // Move camera
     if (player.id === this.currentPlayerId) {
-	    this.cameraTransforms.push({
+	    this.cameraTransformations.push({
 	      startTime: Date.now(),
         diffX: player.location.x - location.x,
         diffY: player.location.y - location.y,
+        moveComplete: 0,
       });
     }
 
@@ -106,23 +107,48 @@ export default class Game {
   }
 
   render() {
-	  // Update camera
-    this.cameraTransforms.forEach(transform => {
-      const progress = (Date.now()-transform.startTime)/1000;
-      const xMovement = EasingFunctions.easeInOutCubic()
-    });
 
-    // Clear rect
-    this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+    try {
+	    // Update camera
+	    this.cameraTransformations.forEach(transformation => {
+		    let progress = (Date.now()-transformation.startTime)/400;
+		    if (progress > 1) {
+			    progress = 1;
 
-    // Render grid
-    this.grid.render();
+		    }
 
-    // Render players
-    Object.values(this.players).forEach(player => {
-      player.render();
-    });
+		    const moveTotal = EasingFunctions.easeInOutCubic(progress);
+		    const moveDiff = moveTotal - transformation.moveComplete;
+		    transformation.moveComplete = moveTotal;
 
-    requestAnimationFrame(this.render);
+		    const moveDiffX = moveDiff * transformation.diffX * this.tileSize;
+		    const moveDiffY = moveDiff * transformation.diffY * this.tileSize;
+
+		    // TODO (maybe never): Floating point issue, pls float away bug, bug, never wanna see you again.
+
+		    this.offsetX += moveDiffX;
+		    this.offsetY += moveDiffY;
+	    });
+
+	    this.cameraTransformations = this.cameraTransformations.filter(t => t.moveComplete < 1);
+
+	    console.log(this.offsetY, this.offsetX);
+
+	    // Clear rect
+	    this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+
+	    // Render grid
+	    this.grid.render();
+
+	    // Render players
+	    Object.values(this.players).forEach(player => {
+		    player.render();
+	    });
+
+	    requestAnimationFrame(this.render);
+    } catch (e) {
+      console.log(e);
+    }
+
   }
 }

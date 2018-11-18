@@ -15,8 +15,8 @@ export default class Player {
         const game = this.game;
         const location = this.location;
 
-        const positionX = (location.x * game.tileSize) - game.offsetX;
-        const positionY = (location.y * game.tileSize) - game.offsetY;
+        const positionX = (location.x * game.tileSize) + (game.offsetX);
+        const positionY = (location.y * game.tileSize) + (game.offsetY);
 
         game.context.fillStyle = this.color;
         game.context.fillRect(positionX, positionY, game.tileSize, game.tileSize);

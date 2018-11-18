@@ -1,13 +1,5 @@
 @import 'generic/_media';
 
-@include media('>=phone', '<tablet') {}
-
-@include media('>=tablet', '<desktop') {}
-
-@include media('>=desktop', '<xl-desktop') {}
-
-@include media('>=xl-desktop') {}
-
 html, body {
   height: 100%;
   width: 100%;
@@ -19,4 +11,40 @@ body {
 
 #root, #root > div {
   height: 100%;
+
+  .score, .time {
+    color: white;
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  .info {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    text-align: center;
+
+    .shape {
+      td {
+        width: 15px;
+        height: 15px;
+
+        &.block {
+          background-color: red;
+        }
+      }
+
+    }
+  }
 }
+
+
+
+
+@include media('>=phone', '<tablet') {}
+
+@include media('>=tablet', '<desktop') {}
+
+@include media('>=desktop', '<xl-desktop') {}
+
+@include media('>=xl-desktop') {}
