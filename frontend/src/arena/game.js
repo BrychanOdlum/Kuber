@@ -6,14 +6,11 @@ import socket from './socket';
 import Player from './player';
 
 export default class Game {
-  constructor(context, size = {width: 500, height: 300}) {
-    this.width = size.width;
-    this.height = size.height;
-
+  constructor(canvas) {
     this.offsetX = 0;
     this.offsetY = 0;
 
-    this.tileSize = 20;
+    this.tileSize = 40;
 
     this.scale = 1;
 
@@ -22,7 +19,10 @@ export default class Game {
     this.players = {};
 
     // Set context
-    this.context = context;
+    this.canvas = canvas;
+    this.context = canvas.getContext('2d');
+
+    this.resizeCanvas();
 
     new Listeners(this);
 
@@ -34,32 +34,43 @@ export default class Game {
       this.setCurrentPlayer(socket.id);
     });
 
-    socket.on('init', data  => {
+    socket.on('init', data => {
       console.log(data);
-
       for (const player of data.arena.players) {
-        this.addPlayer(new Player(this, player.id, new Coordinate(player.coordinate.x, player.coordinate.y)))
+        this.addPlayer(new Player(this, player.id,
+            new Coordinate(player.coordinate.x, player.coordinate.y)));
       }
     });
 
-    socket.on('move', data  => {
-      console.log("MOVE", data);
+    socket.on('move', data => {
+      console.log('MOVE', data);
       const player = this.getPlayer(data.id);
 
-      this.movePlayer(player, new Coordinate(data.coordinate.x, data.coordinate.y))
+      this.movePlayer(player,
+          new Coordinate(data.coordinate.x, data.coordinate.y));
     });
 
-    socket.on('join', (player) =>  {
-      console.log("JOIN", player)
+    socket.on('join', (player) => {
+      console.log('JOIN', player);
 
-      this.addPlayer(new Player(this, player.id, new Coordinate(player.coordinate.x, player.coordinate.y)))
+      this.addPlayer(new Player(this, player.id,
+          new Coordinate(player.coordinate.x, player.coordinate.y)));
     });
 
-    socket.on('leave', (data) =>  {
-      console.log("LEAVE", data)
-      this.removePlayer(data.id)
+    socket.on('leave', (data) => {
+      console.log('LEAVE', data);
+      this.removePlayer(data.id);
     });
+  }
 
+  resizeCanvas() {
+    console.log(this.canvas.height);
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+  }
+
+  addPlayer(player) {
+    this.players[player.id] = player;
   }
 
   addPlayer(player) {

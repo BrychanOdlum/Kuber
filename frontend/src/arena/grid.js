@@ -6,7 +6,7 @@ export default class Grid {
 	render() {
 		const game = this.game;
 		let x = 0.5 + game.offsetX;
-		while (x < game.width) {
+		while (x < game.canvas.width) {
 			x += game.tileSize * game.scale;
 
 			if (x < 0) {
@@ -15,14 +15,14 @@ export default class Grid {
 
 			game.context.beginPath();
 			game.context.lineWidth = 1;
-			game.context.strokeStyle = 'rgb(130,130,130)';
+			game.context.strokeStyle = '#333';
 			game.context.moveTo(x, 0);
-			game.context.lineTo(x, game.height);
+			game.context.lineTo(x, game.canvas.height);
 			game.context.stroke();
 		}
 
 		let y = 0.5 + game.offsetY;
-		while (y < game.height) {
+		while (y < game.canvas.height) {
 			y += game.tileSize * game.scale;
 
 			if (y < 0) {
@@ -31,9 +31,9 @@ export default class Grid {
 
 			game.context.beginPath();
 			game.context.lineWidth = 1;
-			game.context.strokeStyle = 'rgb(130,130,130)';
+			game.context.strokeStyle = '#333';
 			game.context.moveTo(0, y);
-			game.context.lineTo(game.width, y);
+			game.context.lineTo(game.canvas.width, y);
 			game.context.stroke();
 		}
 	}

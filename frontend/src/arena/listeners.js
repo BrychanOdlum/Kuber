@@ -53,5 +53,9 @@ export default class Listeners {
         }
       }
     });
+
+    window.addEventListener('resize', (() => {
+      game.resizeCanvas();
+    }));
   }
 }

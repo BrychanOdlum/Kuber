@@ -15,6 +15,9 @@
 <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
 
 <script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const roomId = urlParams.get('id');
+
   var playersEl = document.getElementById('players');
 
   function addPlayer(id, coordinate) {
@@ -42,6 +45,10 @@
 
   socket.on('connect', () => {
     console.log(socket.id);
+
+    socket.emit('arena', roomId)
+
+    socket.join(roomId)
   });
 
   socket.on('init', function(data) {
