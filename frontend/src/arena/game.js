@@ -42,8 +42,8 @@ export default class Game {
     this.render();
 
 	  this.lastTick = Date.now();
-	  this.gameTick = this.gameTick.bind(this)
-	  setInterval(this.gameTick, 33);
+	  this.movementTick = this.movementTick.bind(this)
+	  setInterval(this.movementTick, 33);
   }
 
   resizeCanvas() {
@@ -90,7 +90,7 @@ export default class Game {
     return this.gridHeight;
   }
 
-	gameTick() {
+	movementTick() {
 		const currentTime = Date.now();
 		if (currentTime-this.lastTick < 100) {
 			return;

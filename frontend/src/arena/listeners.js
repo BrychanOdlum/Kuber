@@ -43,6 +43,7 @@ export default class Listeners {
           break;
         }
       }
+      game.movementTick();
     });
 
     // KEY UP
