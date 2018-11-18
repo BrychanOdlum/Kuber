@@ -22,7 +22,7 @@ class Arena {
     this.width = w;
     this.height = h;
 
-    this.players = {};
+    this.teams = {};
 
     this.time = null;
     this.interval = null;
@@ -30,7 +30,9 @@ class Arena {
 
   start() {
     this.time = 10;
-    this.newShape();
+    for (const team of this.getTeams()) {
+      team.newShape();
+    }
     this.interval = setInterval(() => {
       this.time--;
       this.tick();
@@ -45,49 +47,32 @@ class Arena {
   end() {
     this.interval && clearInterval(this.interval);
 
-    this.reward();
-  }
-
-  newShape() {
-    this.shape = shapes[Math.floor(Math.random() * shapes.length)];
-    for (const player of this.getPlayers()) {
-      player.socket.emit('shape', this.shape);
+    for (const team of this.getTeams()) {
+      team.reward(this);
     }
   }
 
   tick() {
-    for (const player of this.getPlayers()) {
-      player.socket.emit('tick', this.time);
-    }
-  }
-
-  reward() {
-    if (this.matchShape()) {
-      for (const player of this.getPlayers()) {
-        player.socket.emit('reward', {
-          reward: 1,
-          score: ++player.score,
-        });
+    for (const team of this.getTeams()) {
+      for (const player of team.getPlayers()) {
+        player.socket.emit('tick', this.time);
       }
     }
   }
 
-  addPlayer(player) {
-    this.players[player.id] = player;
+  addTeam(id, name) {
+    const t = new Team(id, name);
+    this.teams[id] = t;
+
+    return t;
   }
 
-  removePlayer(player) {
-    delete this.players[player.id];
+  getTeam(id) {
+    return this.teams[id];
   }
 
-  findPlayer(id) {
-    for (const player of this.getPlayers()) {
-      if (player.id === id) {
-        return player;
-      }
-    }
-
-    return null;
+  getTeams() {
+    return Object.values(this.teams);
   }
 
   getGrid(serialize = false) {
@@ -100,22 +85,75 @@ class Arena {
       }
     }
 
-    for (let player of this.getPlayers()) {
-      if (serialize) {
-        player = player.serialize()
+    for (const team of this.getTeams()) {
+      for (let player of team.getPlayers()) {
+        if (serialize) {
+          player = player.serialize();
+        }
+
+        grid[player.coordinate.y][player.coordinate.x] = player;
       }
-
-      grid[player.coordinate.y][player.coordinate.x] = player;
     }
-
     return grid;
+  }
+}
+
+function getRandomColor() {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
+function randId() {
+  return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(2, 10);
+}
+
+class Team {
+  constructor(id, name) {
+    this.id = id;
+    this.name = name;
+    this.color = getRandomColor();
+
+    this.players = {};
+    this.newShape();
+  }
+
+  addPlayer(player) {
+    this.players[player.id] = player;
+    player.team = this;
+  }
+
+  removePlayer(player) {
+    player.team = null;
+    delete this.players[player.id];
   }
 
   getPlayers() {
     return Object.values(this.players);
   }
 
-  matchShape() {
+  newShape() {
+    this.shape = shapes[Math.floor(Math.random() * shapes.length)];
+    for (const player of this.getPlayers()) {
+      player.socket.emit('shape', this.shape);
+    }
+  }
+
+  reward(arena) {
+    if (this.matchShape(arena)) {
+      for (const player of this.getPlayers()) {
+        player.socket.emit('reward', {
+          reward: 1,
+          score: ++player.score,
+        });
+      }
+    }
+  }
+
+  matchShape(arena) {
     const shape = this.shape;
 
     if (arena.width < shape.width) {
@@ -126,17 +164,17 @@ class Arena {
       return false;
     }
 
-    const grid = this.getGrid();
+    const grid = arena.getGrid();
 
-    for (let oy = 0; oy < this.height - shape.height; oy++) {
-      for (let ox = 0; ox < this.width - shape.width; ox++) {
+    for (let oy = 0; oy < arena.height - shape.height; oy++) {
+      for (let ox = 0; ox < arena.width - shape.width; ox++) {
         let match = true;
         for (let sy = 0; sy < shape.height; sy++) {
           for (let sx = 0; sx < shape.width; sx++) {
             const x = ox + sx;
             const y = oy + sy;
 
-            if (shape.grid[sy][sx] == true && grid[y][x] === null) {
+            if (shape.grid[sy][sx] == true && (grid[y][x] === null || grid[y][x].team.id !== this.id)) {
               match = false;
             }
           }
@@ -149,6 +187,20 @@ class Arena {
 
     return false;
   }
+
+  serialize(withPlayers = false) {
+    const team = {
+      id: this.id,
+      name: this.name,
+      color: this.color,
+    };
+
+    if (withPlayers) {
+      team.players = this.getPlayers().map(p => p.serialize());
+    }
+
+    return team;
+  }
 }
 
 class Player {
@@ -160,7 +212,12 @@ class Player {
   }
 
   serialize() {
-    return {id: this.id, coordinate: this.coordinate, score: this.score};
+    return {
+      id: this.id,
+      coordinate: this.coordinate,
+      score: this.score,
+      team: this.team ? this.team.serialize() : null,
+    };
   }
 }
 
@@ -210,21 +267,46 @@ io.on('connection', (socket) => {
       socket,
   );
 
-  arena.addPlayer(player);
+  socket.emit('teams', arena.getTeams().map(t => t.serialize()));
 
-  socket.emit('init', {
-    arena: {
-      width: arena.width,
-      height: arena.height,
-      players: arena.getPlayers().map(p => p.serialize()),
-      grid: arena.getGrid(true),
-    },
+  function emitArenaInfos() {
+    socket.emit('arena infos', {
+      arena: {
+        width: arena.width,
+        height: arena.height,
+        teams: arena.getTeams().map(t => t.serialize(true)),
+        grid: arena.getGrid(true),
+        team: player.team.serialize(true),
+      },
+    });
+  }
+
+  function joinTeam(team) {
+    team.addPlayer(player);
+
+    socket.emit('init', {});
+
+    socket.broadcast.emit('join', player.serialize());
+  }
+
+  socket.on('create team', data => {
+    const team = arena.addTeam(randId(), data.name);
+
+    socket.broadcast.emit('teams', arena.getTeams().map(t => t.serialize()));
+
+    joinTeam(team);
   });
 
-  socket.broadcast.emit('join', player.serialize());
+  socket.on('join team', data => {
+    joinTeam(arena.getTeam(data));
+  });
+
+  socket.on('arena infos', () => {
+    emitArenaInfos();
+  });
 
   socket.on('disconnect', () => {
-    arena.removePlayer(player);
+    player.team && player.team.removePlayer(player);
 
     socket.broadcast.emit('leave', {
       id: player.id,

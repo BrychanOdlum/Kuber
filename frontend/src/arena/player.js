@@ -1,10 +1,10 @@
 export default class Player {
-    constructor(game, id, location) {
+    constructor(game, id, location, color) {
         this.game = game;
 
         this.id = id;
         this.location = location;
-        this.color = 'rgb(255,0,0)';
+        this.color = color;
     }
 
     move(location) {
