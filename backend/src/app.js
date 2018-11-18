@@ -114,12 +114,7 @@ class Arena {
 }
 
 function getRandomColor() {
-  const letters = '0123456789ABCDEF';
-  let color = '#';
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
+  return `hsl(${Math.floor(Math.random() * (359))}, 100%, 50%)`;
 }
 
 function randId() {
@@ -271,7 +266,9 @@ const shapes = [
   ]),
 ];
 
+
 const arena = new Arena(100, 100);
+
 arena.start();
 
 io.on('connection', (socket) => {
@@ -330,7 +327,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('move', (direction) => {
-    console.log('Move', direction, player.coordinate);
     let yDiff = 0;
     let xDiff = 0;
 
@@ -359,14 +355,10 @@ io.on('connection', (socket) => {
       xDiff = 0;
     }
 
-    console.log(yDiff, xDiff);
-
     if (!arena.isTileEmpty(newCoordinate)) {
       xDiff = 0;
       yDiff = 0;
-      console.log('is not empty');
     }
-    console.log(yDiff, xDiff);
 
     if (xDiff !== 0 || yDiff !== 0) {
       player.coordinate = newCoordinate;

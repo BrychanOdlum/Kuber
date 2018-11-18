@@ -1,0 +1,14 @@
+{
+  "name": "bot",
+  "version": "",
+  "description": "",
+  "main": "src/app.js",
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "socket.io-client": "^2.1.1"
+  },
+  "scripts": {
+    "start": "node src/app.js"
+  }
+}
