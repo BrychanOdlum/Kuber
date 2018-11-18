@@ -107,7 +107,6 @@ export default class Game {
   }
 
   render() {
-
     try {
 	    // Update camera
 	    this.cameraTransformations.forEach(transformation => {
@@ -131,8 +130,6 @@ export default class Game {
 	    });
 
 	    this.cameraTransformations = this.cameraTransformations.filter(t => t.moveComplete < 1);
-
-	    console.log(this.offsetY, this.offsetX);
 
 	    // Clear rect
 	    this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
