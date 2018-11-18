@@ -260,15 +260,15 @@ const shapes = [
     [1],
     [1],
   ]),
-  new Shape([
-    [1],
-    [0],
-    [1],
-  ]),
+	new Shape([
+		[1],
+		[0],
+		[1],
+	]),
 ];
 
 
-const arena = new Arena(100, 100);
+const arena = new Arena(30, 30);
 
 arena.start();
 

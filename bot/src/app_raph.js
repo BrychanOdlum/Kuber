@@ -104,9 +104,9 @@ class Bot {
       const bots = [];
 
       const b1 = new Bot();
-      b1.__MASTER = true
+      b1.__MASTER = true;
       bots.push(b1);
-      await b1.createTeam(`Team ${i}`);
+      await b1.createTeam(generateName());
       await b1.init();
 
       const ox = Math.floor(Math.random() * b1.arena.width - 5);
@@ -146,3 +146,44 @@ class Bot {
     })();
   }
 })();
+
+// Name generator courtesy of Tommy Hodgins: https://codepen.io/tomhodgins/pen/EVQjWG
+function generateName() {
+	const format = [
+			'"The "+pick(adjective)',
+			'pick(adjective)+" "+pick(adjective)',
+			'pick(adjective)+" "+pick(noun)',
+			'pick(adjective)+" "+pick(place)',
+			'"2 "+pick(adjective)+" 2 "+pick(verb)',
+			'pick(adjective)+" 4 Life"',
+			'"Team "+pick(adjective)',
+			'"Team "+pick(noun)',
+			'"Team "+pick(place)',
+			'pick(noun)+" With "+pick(adjective)+" "+pick(noun)',
+			'pick(noun)+" With "+pick(noun)',
+			'pick(noun)+" From "+pick(place)',
+			'pick(noun)+" "+pick(verb)',
+			'pick(noun)+" Don’t "+pick(verb)',
+			'pick(place)+" "+pick(noun)',
+			'pick(place)+"’s "+pick(adjective)+" "+pick(noun)',
+			'pick(place)+"’s Finest"',
+			'pick(verb)+" & "+pick(verb)',
+			'"Keep Calm & "+pick(verb)',
+		],
+		adjective = [ // the…
+			'Delinquent','Hilary’s-Own','Surprising','Unstoppable','Great-Canadian','Trivial','Undefeated','Ghetto','Awesome','Mighty','Ratchet','Neglectful','Supreme','Almost-Ready-To-Play','PC','[TRIGGERED]','Microagressive','Brave','Top-Secret','Metric','Hood-Rich','Ballin’','Twerking-Class','Raging','Trill','#Winning','Twerking','Micro-Managing','Dank','Privileged','Omniscient','College-Educated','Real','Royal'
+		],
+		noun = [ // the…
+			'Beavers','SJWs','Buffaloons','WOEs','Crew','Executives','Squad','Cultural Appropriation','Tumblristas','Patriots','Alex Trebek','Yankees','Canucks','Babes','OGs','1%','Wikipedians','Thugs','Gangsters','Microagressions','Warriors','Trigger Warning','Bernie Sanders'
+		],
+		place = [ // from…
+			'Toronto','Buffalo','America','Canada','Earth','Tumblr','The Internet','The Past','Space','Nowhere','The Right-Side-of-History','The Trap','Wikipedia','The Streets','The Occident','The 6','Rape Culture','First-Class','An Alternate Universe'
+		],
+		verb = [ // who…
+			'Destroy','Can’t Even','Win','Have Guns','Get Jokes','Know Things','Trivialize','Lift','Guess Well','Lawyer Up','Care'
+		];
+	function pick(id){
+		return id[Math.floor(Math.random()*id.length)]
+	}
+	return eval(format[Math.floor(Math.random()*format.length)]);
+}
