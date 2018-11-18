@@ -1,13 +1,14 @@
 const app = require('express')();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
+const path = require('path');
 
 server.listen(9000, () => {
   console.log('Server started');
 });
 
 app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/../../frontend/dist/index.html');
+  res.sendFile(path.resolve(__dirname + '/../../frontend/dist/index.html'));
 });
 
 class Coordinate {
