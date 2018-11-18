@@ -1,9 +1,9 @@
 {
-  "name": "stockly",
-  "version": "0.1.0",
-  "description": "A stock photography website.",
+  "name": "A game",
+  "version": "",
+  "description": "",
   "main": "index.js",
-  "author": "Filip Grebowski",
+  "author": "",
   "license": "MIT",
   "dependencies": {
     "@symfony/webpack-encore": "^0.20.1",

@@ -1,0 +1,15 @@
+@import './src/generic/_media';
+
+.canvas {
+  display: block;
+  margin: 0 auto;
+  background-color: yellow;
+}
+
+@include media('>=phone', '<tablet') {}
+
+@include media('>=tablet', '<desktop') {}
+
+@include media('>=desktop', '<xl-desktop') {}
+
+@include media('>=xl-desktop') {}
