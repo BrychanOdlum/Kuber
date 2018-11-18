@@ -47,6 +47,16 @@ export default class Game {
 
       this.arenaHeight = data.arena.height;
       this.arenaWidth = data.arena.width;
+
+
+      const player = this.getPlayer(this.currentPlayerId);
+	    const canvasCenterX = this.canvas.width / 2;
+	    const playerLocationX = (player.location.x * (this.tileSize * this.scale)) + ((this.tileSize * this.scale) / 2);
+	    const canvasCenterY = this.canvas.height / 2;
+	    const playerLocationY = (player.location.y * (this.tileSize * this.scale)) + ((this.tileSize * this.scale) / 2);
+
+	    this.offsetX = canvasCenterX - playerLocationX;
+	    this.offsetY = canvasCenterY - playerLocationY;
     });
 
     socket.on('move', data => {
