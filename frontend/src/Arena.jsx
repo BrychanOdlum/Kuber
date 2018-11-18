@@ -14,6 +14,7 @@ export default class Arena extends Component {
       score: 0,
       time: 0,
       shape: null,
+      ready: false,
     };
   }
 
@@ -21,23 +22,27 @@ export default class Arena extends Component {
     const canvas = this.refs.canvas;
     const game = new Game(canvas);
 
-    socket.on('connect', () => {
-      console.log('Socket id: ', socket.id);
-      game.setCurrentPlayer(socket.id);
-    });
-
-    socket.on('init', data => {
+    socket.on('arena infos', data => {
       console.log('INIT: ', data);
+      game.setCurrentPlayer(socket.id);
+
       game.gridWidth = data.arena.width;
       game.gridHeight = data.arena.height;
 
-      for (const player of data.arena.players) {
-        game.addPlayer(
-            new Player(game, player.id, new Coordinate(
-                player.coordinate.x,
-                player.coordinate.y),
-            ),
-        );
+      for (const team of data.arena.teams) {
+        for (const player of team.players) {
+          game.addPlayer(
+              new Player(
+                  game,
+                  player.id,
+                  new Coordinate(
+                      player.coordinate.x,
+                      player.coordinate.y,
+                  ),
+                  team.color,
+              ),
+          );
+        }
       }
 
       game.arenaHeight = data.arena.height;
@@ -53,7 +58,13 @@ export default class Arena extends Component {
 
       game.offsetX = canvasCenterX - playerLocationX;
       game.offsetY = canvasCenterY - playerLocationY;
+
+      this.setState({
+        ready: true,
+      });
     });
+
+    socket.emit('arena infos');
 
     socket.on('move', data => {
       console.log('MOVE', data);
@@ -66,8 +77,14 @@ export default class Arena extends Component {
     socket.on('join', (player) => {
       console.log('JOIN', player);
 
-      game.addPlayer(new Player(game, player.id,
-          new Coordinate(player.coordinate.x, player.coordinate.y)));
+      game.addPlayer(
+          new Player(
+              game,
+              player.id,
+              new Coordinate(player.coordinate.x, player.coordinate.y),
+              player.team.color,
+          ),
+      );
     });
 
     socket.on('leave', (data) => {
