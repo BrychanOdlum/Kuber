@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Playground</title>
+</head>
+<body>
+
+<div id="players"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+<script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
+
+<script>
+  var playersEl = document.getElementById('players');
+
+  function addPlayer(id, position) {
+    const pEl = document.createElement("div");
+    pEl.textContent = id + ": (" + position.x + ", " + position.y + ")";
+    pEl.id = "player-" + id;
+
+    playersEl.appendChild(pEl)
+  }
+
+  var socket = io('http://localhost:9000');
+
+  socket.on('connect', () => {
+    console.log(socket.id);
+  });
+
+  socket.on('init', function(data) {
+    console.log(data);
+
+    for (const player of data.arena.players) {
+      addPlayer(player.id, player.position)
+    }
+  });
+
+  socket.on('move', function(data) {
+    console.log("MOVE", data);
+    const c = data.position;
+    document.getElementById("player-"+data.id).textContent = data.id + ": (" + c.x + ", " + c.y + ")"
+  });
+
+  socket.on('join', function (data) {
+    console.log("JOIN", data)
+    addPlayer(data.id, data.position)
+  })
+
+  socket.on('leave', function (data) {
+    console.log("LEAVE", data)
+    const element = document.getElementById("player-"+data.id);
+    element.parentNode.removeChild(element);
+  })
+
+  hotkeys('up,down,left,right', function(event, handler) {
+    socket.emit('move', handler.key);
+  });
+</script>
+</body>
+</html>
