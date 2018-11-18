@@ -4,6 +4,9 @@ import '../node_modules/normalize.css/normalize.css';
 import './App.scss';
 import Arena from './Arena';
 import socket from './arena/socket';
+import Setup from "./Setup";
+
+import logo from './assets/game-logo.png';
 
 class App extends Component {
   constructor(props) {
@@ -58,21 +61,26 @@ class App extends Component {
     }
 
     return (
-        <div>
-          {this.state.teams.map((team, i) => (
-              <div key={i} onClick={() => this.joinTeam(team)}>
-                {team.name}
-              </div>
-          ))}
+        <Setup>
           <div>
-            <input type="text"
-                   value={this.state.teamName}
-                   onChange={(e) => this.setState({teamName: e.target.value})}/>
-            <button onClick={() => this.createTeam()}>
-              Create team
-            </button>
+            <div className={"team-container"}>
+              <img src={logo} alt={"logo"} className={"logo"}/>
+              <div className={"present-team-container"}>
+                {this.state.teams.map((team, i) => (
+                    <div className={"teams"} key={i} onClick={() => this.joinTeam(team)}>
+                      {team.name}
+                    </div>
+                ))}
+              </div>
+              <input className={"team-input"} type={"text"}
+                     value={this.state.teamName} placeholder={"Enter Team Name"}
+                     onChange={(e) => this.setState({teamName: e.target.value})}/>
+              <button className={"team-submit"} onClick={() => this.createTeam()}>
+                Create Team
+              </button>
+            </div>
           </div>
-        </div>
+        </Setup>
     );
   }
 }
