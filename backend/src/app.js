@@ -198,7 +198,7 @@ const shapes = [
   ]),
 ];
 
-const arena = new Arena(32, 25);
+const arena = new Arena(10, 10);
 arena.start();
 
 io.on('connection', (socket) => {
@@ -232,7 +232,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('move', (direction) => {
-    console.log('Move', direction);
+    console.log('Move', direction, player.coordinate);
 
     switch (direction) {
       case 'up':

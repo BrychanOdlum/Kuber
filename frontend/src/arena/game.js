@@ -20,6 +20,9 @@ export default class Game {
     this.arenaHeight = 0;
     this.arenaWidth = 0;
 
+    this.gridWidth = null;
+    this.gridHeight = null;
+
     this.players = {};
 
     // Set canvas vars
@@ -34,12 +37,15 @@ export default class Game {
     this.render();
 
     socket.on('connect', () => {
-      console.log(socket.id);
+      console.log("Socket id: ", socket.id);
       this.setCurrentPlayer(socket.id);
     });
 
     socket.on('init', data => {
-      console.log(data);
+      console.log("Data: ", data);
+      this.gridWidth = data.arena.width;
+      this.gridHeight = data.arena.height;
+
       for (const player of data.arena.players) {
         this.addPlayer(new Player(this, player.id,
             new Coordinate(player.coordinate.x, player.coordinate.y)));
@@ -81,13 +87,8 @@ export default class Game {
   }
 
   resizeCanvas() {
-    console.log(this.canvas.height);
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
-  }
-
-  addPlayer(player) {
-    this.players[player.id] = player;
   }
 
   addPlayer(player) {
@@ -119,6 +120,20 @@ export default class Game {
 
     // Move player
 	  player.move(location);
+  }
+
+  getGridWidth() {
+    return this.gridWidth;
+  }
+
+  getGridHeight() {
+    return this.gridHeight;
+  }
+
+  fetchPlayerPositions() {
+    Object.values(this.players).forEach(player => {
+      player.coordinate
+    });
   }
 
   render() {
