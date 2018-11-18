@@ -198,7 +198,7 @@ const shapes = [
   ]),
 ];
 
-const arena = new Arena(40, 40);
+const arena = new Arena(32, 25);
 arena.start();
 
 io.on('connection', (socket) => {

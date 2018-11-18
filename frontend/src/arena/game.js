@@ -1,75 +1,110 @@
 import Grid from './grid';
 import Coordinate from './coordinate';
 import Listeners from './listeners';
+import socket from './socket';
 
 import Player from './player';
 
 import { EasingFunctions } from './utils';
 
 export default class Game {
-    constructor(canvas) {
-        this.offsetX = 0;
-        this.offsetY = 0;
+  constructor(canvas) {
+    this.offsetX = 0;
+    this.offsetY = 0;
 
-        this.tileSize = 40;
+    this.tileSize = 40;
 
-        this.scale = 1;
+    this.scale = 1;
 
-        this.grid = new Grid(this);
+    this.grid = new Grid(this);
 
-        this.players = {};
+    this.players = {};
 
-        // Set context
-        this.canvas = canvas;
-        this.context = canvas.getContext("2d");
+    // Set context
+    this.canvas = canvas;
+    this.context = canvas.getContext('2d');
 
-        this.addPlayer(new Player(this, 1, new Coordinate(5, 1)));
-        this.addPlayer(new Player(this, 2, new Coordinate(20, 20)));
-        this.setCurrentPlayer(2);
+    this.resizeCanvas();
 
-        this.resizeCanvas();
+    new Listeners(this);
 
-        new Listeners(this);
+    this.render = this.render.bind(this);
+    this.render();
 
-        this.render = this.render.bind(this);
-        this.render();
-    }
+    socket.on('connect', () => {
+      console.log(socket.id);
+      this.setCurrentPlayer(socket.id);
+    });
 
-    resizeCanvas() {
-        console.log(this.canvas.height);
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-    }
+    socket.on('init', data => {
+      console.log(data);
+      for (const player of data.arena.players) {
+        this.addPlayer(new Player(this, player.id,
+            new Coordinate(player.coordinate.x, player.coordinate.y)));
+      }
+    });
 
-    addPlayer(player) {
-        this.players[player.id] = player;
-    }
+    socket.on('move', data => {
+      console.log('MOVE', data);
+      const player = this.getPlayer(data.id);
 
-    getPlayer(id) {
-        return this.players[id];
-    }
+      this.movePlayer(player,
+          new Coordinate(data.coordinate.x, data.coordinate.y));
+    });
 
-    removePlayer(id) {
-        delete this.players[id];
-    }
+    socket.on('join', (player) => {
+      console.log('JOIN', player);
 
-    setCurrentPlayer(id) {
-        this.currentPlayerId = id;
-    }
+      this.addPlayer(new Player(this, player.id,
+          new Coordinate(player.coordinate.x, player.coordinate.y)));
+    });
 
-    movePlayer(player, location) {
-        player.move(location);
-    }
+    socket.on('leave', (data) => {
+      console.log('LEAVE', data);
+      this.removePlayer(data.id);
+    });
+  }
 
-    render() {
-        this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+  resizeCanvas() {
+    console.log(this.canvas.height);
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+  }
 
-        this.grid.render();
+  addPlayer(player) {
+    this.players[player.id] = player;
+  }
 
-        Object.values(this.players).forEach(player => {
-            player.render();
-        });
+  addPlayer(player) {
+    this.players[player.id] = player;
+  }
 
-        requestAnimationFrame(this.render);
-    }
+  getPlayer(id) {
+    return this.players[id];
+  }
+
+  removePlayer(id) {
+    delete this.players[id];
+  }
+
+  setCurrentPlayer(id) {
+    this.currentPlayerId = id;
+  }
+
+  movePlayer(player, location) {
+    player.move(location);
+  }
+
+  render() {
+    this.context.clearRect(0, 0, this.context.canvas.width,
+        this.context.canvas.height);
+
+    this.grid.render();
+
+    Object.values(this.players).forEach(player => {
+      player.render();
+    });
+
+    requestAnimationFrame(this.render);
+  }
 }
