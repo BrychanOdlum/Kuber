@@ -7,7 +7,7 @@ server.listen(9000, () => {
 });
 
 app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/../../frontend/dist/index.html');
 });
 
 class Coordinate {
