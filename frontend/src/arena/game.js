@@ -17,6 +17,8 @@ export default class Game {
     this.scale = 1;
 
     this.grid = new Grid(this);
+    this.arenaHeight = 0;
+    this.arenaWidth = 0;
 
     this.players = {};
 
@@ -42,6 +44,9 @@ export default class Game {
         this.addPlayer(new Player(this, player.id,
             new Coordinate(player.coordinate.x, player.coordinate.y)));
       }
+
+      this.arenaHeight = data.arena.height;
+      this.arenaWidth = data.arena.width;
     });
 
     socket.on('move', data => {
