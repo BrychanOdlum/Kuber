@@ -140,19 +140,21 @@ export default class Arena extends Component {
 
   render() {
     return (
-        <div>
-          <Highscores />
-          <div className={'info'}>
-            <div className={'yetAnotherContainerOrYacForShort'}>
-              <div className={'time'}>{this.state.time}<span className={"time-text"}>sec</span></div>
-              <div className={'score'}>{this.state.score}<span className={"points-text"}>pts</span></div>
+        <React.Fragment>
+          <div>
+            <div className={'info'}>
+              <div className={'yetAnotherContainerOrYacForShort'}>
+                <div className={'time'}>{this.state.time}<span className={"time-text"}>sec</span></div>
+                <div className={'score'}>{this.state.score}<span className={"points-text"}>pts</span></div>
+              </div>
+              <div className={"pattern-container"}>
+                {this.renderShape()}
+              </div>
             </div>
-            <div className={"pattern-container"}>
-              {this.renderShape()}
-            </div>
+            <canvas className={'canvas'} ref={'canvas'}/>
+            <Highscores/>
           </div>
-          <canvas className={'canvas'} ref={'canvas'}/>
-        </div>
+        </React.Fragment>
     );
   }
 }

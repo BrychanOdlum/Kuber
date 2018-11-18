@@ -5,8 +5,7 @@ import './Highscores.scss';
 export default class Highscores extends Component {
   render() {
     return (
-        <div className={"main-container"}>
-          <span>Hello</span>
+        <div className={"main-container"}>ß
         </div>
     );
   }
