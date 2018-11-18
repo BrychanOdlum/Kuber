@@ -159,7 +159,7 @@ class Team {
   }
 
   newShape() {
-    this.shape = shapes[Math.floor(Math.random() * shapes.length)];
+    this.shape = generateShape(this.getPlayers().length);
     for (const player of this.getPlayers()) {
       player.socket.emit('shape', this.shape);
     }
@@ -273,20 +273,38 @@ class Shape {
   }
 }
 
-const shapes = [
-
-  new Shape([
-    [1, 0, 0, 0, 0],
-    [1, 0, 0, 0, 0],
-    [1, 0, 0, 0, 0],
-    [1, 0, 0, 0, 0],
-    [1, 0, 0, 0, 1],
-  ]),
-];
-
 const arena = new Arena(100, 100);
-
 arena.start();
+
+function generateShape(teamSize) {
+  let maxSize = teamSize + 1;
+  if (maxSize > 5) {
+	  maxSize = 5;
+  }
+
+  const grid = [];
+  for (let y = 0; y < maxSize; y++) {
+    grid[y] = [];
+    for (let x = 0; x < maxSize; x++) {
+      grid[y][x] = 0;
+    }
+  }
+
+  let n = maxSize;
+  while(n > 0) {
+	  let x = Math.floor(Math.random() * maxSize);
+	  let y = Math.floor(Math.random() * maxSize);
+
+	  if(grid[y][x] === 0) {
+		  grid[y][x] = 1;
+		  n--;
+    }
+  }
+
+  console.log(grid);
+
+  return new Shape(grid);
+}
 
 io.on('connection', (socket) => {
   const id = socket.id;
