@@ -202,6 +202,7 @@ class Team {
       id: this.id,
       name: this.name,
       color: this.color,
+      shape: this.shape,
     };
 
     if (withPlayers) {
