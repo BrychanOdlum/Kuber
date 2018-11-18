@@ -3,11 +3,27 @@
 #root, #root > div {
   height: 100%;
 
-  .score, .time {
-    color: rgba(0, 0, 0, 0.8);
-    font-size: 20px;
-    margin-bottom: 10px;
-    text-align: start;
+
+  .yetAnotherContainerOrYacForShort {
+    display: flex;
+    flex-direction: row;
+
+    .score, .time {
+      flex: 1;
+      color: rgba(0, 0, 0, 0.8);
+      margin-bottom: 10px;
+      font-size: 50px;
+
+      .points-text {
+        font-size: 12px;
+        display: block;
+      }
+
+      .time-text {
+        font-size: 12px;
+        display: block;
+      }
+    }
   }
 
   .info {
@@ -15,9 +31,9 @@
     top: 10px;
     left: 10px;
     text-align: center;
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(255, 255, 255, 0.9);
     width: 150px;
-    height: 250px;
+    height: 350px;
     border-radius: 3px;
     padding: 10px;
 

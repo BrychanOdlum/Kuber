@@ -141,8 +141,10 @@ export default class Arena extends Component {
     return (
         <div>
           <div className={'info'}>
-            <div className={'score'}>Score: {this.state.score}</div>
-            <div className={'time'}>Time Left: {this.state.time}</div>
+            <div className={'yetAnotherContainerOrYacForShort'}>
+              <div className={'time'}>{this.state.time}<span className={"time-text"}>sec</span></div>
+              <div className={'score'}>{this.state.score}<span className={"points-text"}>pts</span></div>
+            </div>
             <div className={"pattern-container"}>
               {this.renderShape()}
             </div>

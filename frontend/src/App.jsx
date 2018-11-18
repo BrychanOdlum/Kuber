@@ -56,22 +56,20 @@ class App extends Component {
       );
     }
 
-    if (!this.state.teams) {
-      return 'Loading...';
-    }
-
     return (
         <Setup>
           <div>
             <div className={"team-container"}>
               <img src={logo} alt={"logo"} className={"logo"}/>
-              <div className={"present-team-container"}>
-                {this.state.teams.map((team, i) => (
-                    <div className={"teams"} key={i} onClick={() => this.joinTeam(team)}>
-                      {team.name}
-                    </div>
-                ))}
-              </div>
+              {this.state.teams && this.state.teams.length > 0 && (
+                  <div className={"present-team-container"}>
+                    {this.state.teams.map((team, i) => (
+                        <div className={"teams"} key={i} onClick={() => this.joinTeam(team)}>
+                          {team.name}
+                        </div>
+                    ))}
+                  </div>
+              )}
               <input className={"team-input"} type={"text"}
                      value={this.state.teamName} placeholder={"Enter Team Name"}
                      onChange={(e) => this.setState({teamName: e.target.value})}/>
