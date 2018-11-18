@@ -168,9 +168,11 @@ class Team {
   reward(arena) {
     if (this.matchShape(arena)) {
       for (const player of this.getPlayers()) {
+        player.score += this.shape.count;
+
         player.socket.emit('reward', {
-          reward: 1,
-          score: ++player.score,
+          reward: this.shape.count,
+          score: player.score,
         });
       }
     }
@@ -259,6 +261,15 @@ class Shape {
     this.width = width;
     this.height = grid.length;
     this.grid = grid;
+
+    this.count = 0;
+    for(const row of this.grid) {
+      for(const c of row) {
+        if(c) {
+          this.count++;
+        }
+      }
+    }
   }
 }
 
