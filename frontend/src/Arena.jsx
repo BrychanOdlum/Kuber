@@ -5,6 +5,7 @@ import Game from './arena/game';
 import socket from './arena/socket';
 import Coordinate from './arena/coordinate';
 import Player from './arena/player';
+import Highscores from './Highscores';
 
 export default class Arena extends Component {
   constructor(props) {
@@ -140,6 +141,7 @@ export default class Arena extends Component {
   render() {
     return (
         <div>
+          <Highscores />
           <div className={'info'}>
             <div className={'yetAnotherContainerOrYacForShort'}>
               <div className={'time'}>{this.state.time}<span className={"time-text"}>sec</span></div>
