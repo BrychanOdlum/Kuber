@@ -10,7 +10,7 @@ app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
-class Position {
+class Coordinate {
   constructor(x, y) {
     this.x = x;
     this.y = y;
@@ -23,18 +23,65 @@ class Arena {
     this.height = h;
 
     this.players = {};
+
+    this.time = null;
+    this.interval = null;
+  }
+
+  start() {
+    this.time = 10;
+    this.newShape();
+    this.interval = setInterval(() => {
+      this.time--;
+      this.tick();
+
+      if (this.time === 0) {
+        this.end();
+        this.start();
+      }
+    }, 1000);
+  }
+
+  end() {
+    this.interval && clearInterval(this.interval);
+
+    this.reward();
+  }
+
+  newShape() {
+    this.shape = shapes[Math.floor(Math.random() * shapes.length)];
+    for (const player of this.getPlayers()) {
+      player.socket.emit('shape', this.shape);
+    }
+  }
+
+  tick() {
+    for (const player of this.getPlayers()) {
+      player.socket.emit('tick', this.time);
+    }
+  }
+
+  reward() {
+    if (this.matchShape()) {
+      for (const player of this.getPlayers()) {
+        player.socket.emit('reward', {
+          reward: 1,
+          score: ++player.score,
+        });
+      }
+    }
   }
 
   addPlayer(player) {
-    this.players[player.id] = player
+    this.players[player.id] = player;
   }
 
   removePlayer(player) {
-    delete this.players[player.id]
+    delete this.players[player.id];
   }
 
   findPlayer(id) {
-    for (const player of this.players) {
+    for (const player of this.getPlayers()) {
       if (player.id === id) {
         return player;
       }
@@ -43,7 +90,7 @@ class Arena {
     return null;
   }
 
-  getGrid() {
+  getGrid(serialize = false) {
     const grid = [];
     for (let y = 0; y < this.height; y++) {
       grid[y] = [];
@@ -53,24 +100,115 @@ class Arena {
       }
     }
 
-    for(const player of Object.values(this.players)) {
-      grid[player.position.y][player.position.x] = player
+    for (let player of this.getPlayers()) {
+      if (serialize) {
+        player = player.serialize()
+      }
+
+      grid[player.coordinate.y][player.coordinate.x] = player;
     }
+
+    return grid;
+  }
+
+  getPlayers() {
+    return Object.values(this.players);
+  }
+
+  matchShape() {
+    const shape = this.shape;
+
+    if (arena.width < shape.width) {
+      return false;
+    }
+
+    if (arena.height < shape.height) {
+      return false;
+    }
+
+    const grid = this.getGrid();
+
+    for (let oy = 0; oy < this.height - shape.height; oy++) {
+      for (let ox = 0; ox < this.width - shape.width; ox++) {
+        let match = true;
+        for (let sy = 0; sy < shape.height; sy++) {
+          for (let sx = 0; sx < shape.width; sx++) {
+            const x = ox + sx;
+            const y = oy + sy;
+
+            if (shape.grid[sy][sx] == true && grid[y][x] === null) {
+              match = false;
+            }
+          }
+        }
+        if (match) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 }
 
 class Player {
-  constructor(id, x, y) {
+  constructor(id, x, y, socket) {
     this.id = id;
-    this.position = new Position(x, y)
+    this.coordinate = new Coordinate(x, y);
+    this.socket = socket;
+    this.score = 0;
+  }
+
+  serialize() {
+    return {id: this.id, coordinate: this.coordinate, score: this.score};
   }
 }
 
+class Shape {
+  constructor(grid) {
+    let width;
+    for (const row of grid) {
+      if (width && width !== row.length) {
+        throw new Error('The grid must have homogeneous width');
+      }
+      width = row.length;
+    }
+
+    this.width = width;
+    this.height = grid.length;
+    this.grid = grid;
+  }
+}
+
+const shapes = [
+  new Shape([
+    [1, 0, 1],
+  ]),
+  new Shape([
+    [1, 1],
+  ]),
+  new Shape([
+    [1],
+    [1],
+  ]),
+  new Shape([
+    [1],
+    [0],
+    [1],
+  ]),
+];
+
 const arena = new Arena(40, 40);
+arena.start();
 
 io.on('connection', (socket) => {
   const id = socket.id;
-  const player = new Player(id, Math.round(arena.width/2), Math.round(arena.height/2));
+  const player = new Player(
+      id,
+      Math.round(arena.width / 2),
+      Math.round(arena.height / 2),
+      socket,
+  );
 
   arena.addPlayer(player);
 
@@ -78,19 +216,19 @@ io.on('connection', (socket) => {
     arena: {
       width: arena.width,
       height: arena.height,
-      players: Object.values(arena.players),
-      grid: arena.getGrid(),
+      players: arena.getPlayers().map(p => p.serialize()),
+      grid: arena.getGrid(true),
     },
   });
 
-  socket.broadcast.emit('join', player);
+  socket.broadcast.emit('join', player.serialize());
 
   socket.on('disconnect', () => {
-    arena.removePlayer(player)
+    arena.removePlayer(player);
 
     socket.broadcast.emit('leave', {
       id: player.id,
-    })
+    });
   });
 
   socket.on('move', (direction) => {
@@ -98,23 +236,22 @@ io.on('connection', (socket) => {
 
     switch (direction) {
       case 'up':
-        player.position.y++;
+        player.coordinate.y++;
         break;
       case 'down':
-        player.position.y--;
+        player.coordinate.y--;
         break;
       case 'right':
-        player.position.x++;
+        player.coordinate.x++;
         break;
       case 'left':
-        player.position.x--;
+        player.coordinate.x--;
         break;
     }
 
     io.emit('move', {
       id: player.id,
-      position: player.position
-    })
+      coordinate: player.coordinate,
+    });
   });
-
 });
