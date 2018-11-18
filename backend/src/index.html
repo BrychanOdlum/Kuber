@@ -6,6 +6,9 @@
 </head>
 <body>
 
+<div id="score">0</div>
+<div id="time"></div>
+<pre id="shape"></pre>
 <div id="players"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
@@ -14,12 +17,25 @@
 <script>
   var playersEl = document.getElementById('players');
 
-  function addPlayer(id, position) {
+  function addPlayer(id, coordinate) {
     const pEl = document.createElement("div");
-    pEl.textContent = id + ": (" + position.x + ", " + position.y + ")";
+    pEl.textContent = id + ": (" + coordinate.x + ", " + coordinate.y + ")";
     pEl.id = "player-" + id;
 
     playersEl.appendChild(pEl)
+  }
+
+  function displayShape(shape) {
+    let str = "";
+    
+    for (const row of shape.grid) {
+      for (const p of row) {
+        str += p ? "X" : " "
+      }
+      str += "\n";
+    }
+    
+    document.getElementById("shape").textContent = str
   }
 
   var socket = io('http://localhost:9000');
@@ -32,26 +48,42 @@
     console.log(data);
 
     for (const player of data.arena.players) {
-      addPlayer(player.id, player.position)
+      addPlayer(player.id, player.coordinate)
     }
   });
 
   socket.on('move', function(data) {
     console.log("MOVE", data);
-    const c = data.position;
+    const c = data.coordinate;
     document.getElementById("player-"+data.id).textContent = data.id + ": (" + c.x + ", " + c.y + ")"
   });
 
   socket.on('join', function (data) {
     console.log("JOIN", data)
-    addPlayer(data.id, data.position)
-  })
+    addPlayer(data.id, data.coordinate)
+  });
+
+  socket.on('reward', function (data) {
+    console.log("REWARD", data)
+
+    document.getElementById("score").textContent = data.score
+  });
+
+  socket.on('shape', function (data) {
+    console.log("SHAPE", data)
+
+    displayShape(data)
+  });
+
+  socket.on('tick', function (data) {
+    document.getElementById("time").textContent = data
+  });
 
   socket.on('leave', function (data) {
     console.log("LEAVE", data)
     const element = document.getElementById("player-"+data.id);
     element.parentNode.removeChild(element);
-  })
+  });
 
   hotkeys('up,down,left,right', function(event, handler) {
     socket.emit('move', handler.key);
