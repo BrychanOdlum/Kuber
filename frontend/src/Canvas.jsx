@@ -1,22 +1,24 @@
 import React, {Component} from 'react';
 
 import './Canvas.scss';
+import Game from './arena/game';
 
 export default class Canvas extends Component {
 
     componentDidMount() {
         const canvas = this.refs.canvas;
         const ctx = canvas.getContext("2d");
-
-        ctx.fillStyle = "#FF0000";
-        ctx.fillRect(0,0,150,75);
-
-}
+        try {
+	        let game = new Game(ctx, {width: 640, height: 500});
+        } catch (e) {
+            console.error(e);
+        }
+    }
 
 render() {
     return(
         <div>
-            <canvas className={"canvas"} ref={"canvas"} width={640} height={425} />
+            <canvas className={"canvas"} ref={"canvas"} width={640} height={500} />
         </div>
     )
 }

@@ -1,4 +1,4 @@
-@import './src/generic/_media';
+@import 'generic/_media';
 
 @include media('>=phone', '<tablet') {}
 

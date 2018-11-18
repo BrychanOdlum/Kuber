@@ -1,9 +1,10 @@
-@import './src/generic/_media';
+@import 'generic/_media';
 
 .canvas {
   display: block;
   margin: 0 auto;
-  background-color: yellow;
+  margin-top: 80px;
+  border: solid 2px #000;
 }
 
 @include media('>=phone', '<tablet') {}
