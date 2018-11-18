@@ -236,10 +236,10 @@ io.on('connection', (socket) => {
 
     switch (direction) {
       case 'up':
-        player.coordinate.y++;
+        player.coordinate.y--;
         break;
       case 'down':
-        player.coordinate.y--;
+        player.coordinate.y++;
         break;
       case 'right':
         player.coordinate.x++;
