@@ -24,7 +24,7 @@ export default class Listeners {
         case 'w':
         case 'arrowup': {
           const newLocation = player.location.getRelative(0, -1);
-          if(!newLocation.y < 0) {
+          if(newLocation.y < 0) {
             console.log("Reached boundary.");
           } else {
             socket.emit('move', 'up');
