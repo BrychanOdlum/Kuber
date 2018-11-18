@@ -16,6 +16,7 @@ export default class Arena extends Component {
       time: 0,
       shape: null,
       ready: false,
+      teams: null,
     };
   }
 
