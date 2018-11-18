@@ -1,6 +1,10 @@
+import Grid from './grid';
+import Coordinate from './coordinate';
+
+import Player from './player';
+
 export default class Game {
-	constructor(context, size = {width: 500, height: 300}, options = {zIndex: 1}) {
-		this.objects = [];
+	constructor(context, size = {width: 500, height: 300}) {
 
 		this.width = size.width;
 		this.height = size.height;
@@ -12,6 +16,9 @@ export default class Game {
 
 		this.scale = 1;
 
+		this.grid = new Grid(this);
+		this.players = [];
+
 		// Set context
 		this.context = context;
 
@@ -21,46 +28,19 @@ export default class Game {
 	render() {
 		this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
 
-		this.renderGrid();
+		this.grid.render();
 
-		this.objects.forEach(o => {
-			o.draw(this.context);
+		console.log(this.players);
+
+		this.players.forEach(player => {
+			console.log('rendering player');
+			player.render();
 		});
 
 		requestAnimationFrame(this.render);
 	}
 
-	renderGrid() {
-		let x = this.offsetX;
-		while (x < this.width) {
-			x += this.tileSize * this.scale;
-
-			if (x < 0) {
-				continue;
-			}
-
-			this.context.beginPath();
-			this.context.lineWidth = 1;
-			this.context.strokeStyle = 'rgb(250,0,0)';
-			this.context.moveTo(x, 0);
-			this.context.lineTo(x, this.height);
-			this.context.stroke();
-		}
-
-		let y = this.offsetY;
-		while (y < this.height) {
-			y += this.tileSize * this.scale;
-
-			if (y < 0) {
-				continue;
-			}
-
-			this.context.beginPath();
-			this.context.lineWidth = 1;
-			this.context.strokeStyle = 'rgb(0,0,245)';
-			this.context.moveTo(0, y);
-			this.context.lineTo(this.width, y);
-			this.context.stroke();
-		}
+	addPlayer(player) {
+		this.players.push(player);
 	}
 }

@@ -8,7 +8,11 @@ export default class Canvas extends Component {
     componentDidMount() {
         const canvas = this.refs.canvas;
         const ctx = canvas.getContext("2d");
-	    let game = new Game(ctx, {width: 640, height: 500});
+        try {
+	        let game = new Game(ctx, {width: 640, height: 500});
+        } catch (e) {
+            console.error(e);
+        }
     }
 
 render() {
